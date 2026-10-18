@@ -1,0 +1,17 @@
+# Carpetas que crea Processing al exportar (pesan mucho y se generan solas)
+Disconnected/application.*/
+Disconnected/windows-*/
+Disconnected/linux-*/
+Disconnected/macos-*/
+# Configuración personal de cada jugador (cada quien tiene la suya)
+Disconnected/data/config.json
+# Basura del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+hs_err_pid*.log
+# Copias automáticas que hace Processing (no se suben)
+*.autosave
+# Respaldos personales (por si alguien los deja dentro de la carpeta)
+*_respaldo/

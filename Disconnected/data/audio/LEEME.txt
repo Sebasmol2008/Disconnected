@@ -1,0 +1,6 @@
+Aquí va la música del juego:
+- musica.mp3 -> música de fondo de las pantallas de inicio (intro, menú, opciones, créditos y elegir historia).
+  Suena en bucle y se detiene al entrar a una historia.
+
+IMPORTANTE: el juego carga este archivo directamente en setup(). Si falta o se le cambia el nombre,
+el juego no arranca. Si se cambia la música, el archivo nuevo debe llamarse igual: musica.mp3
