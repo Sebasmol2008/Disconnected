@@ -38,6 +38,11 @@
    if(pantalla == 0){  //Cualquier tecla en la intro hace avanzar.
       avanzarIntro(); 
    }
+   if(key == ENTER){
+      if(pantalla == 21){
+         avanzarDialogo();
+      }
+   }
 }
 
 void mouseReleased(){  //Esta funcion se llama exactamente en el momento en el que el usuario suelta un boton del mouse despues de haberlo presionado.

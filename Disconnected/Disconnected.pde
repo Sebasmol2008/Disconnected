@@ -1,9 +1,8 @@
 /* ======================================================================
  *  DIS(CONNECTED) — Alternative Studios
- *  Versión reescrita por Sebastián.
  *
  *  Pestañas:
- *    Disconnected_v2     -> variables generales, setup(), funciones de ayuda y draw()
+ *    Disconnected        -> variables generales, setup(), funciones de ayuda GENERALES y draw()
  *    Pantallas           -> intro, menú, opciones, créditos y elegir historia (lo que se DIBUJA)
  *    Controles           -> teclado y mouse: keyPressed(), mouseReleased() y sus ayudantes
  *    Modo1, Modo2, Modo3 -> una pestaña por historia o modo de juego
@@ -99,6 +98,8 @@ void setup() {
   texto36 = createFont("fuentes/VT323-Regular.ttf", 36*escalaY);
   texto26 = createFont("fuentes/VT323-Regular.ttf", 26*escalaY);
 
+  cargarModo1();
+
   //Música: cargamos la música del juego.
   musica = new SoundFile(this, "audio/musica.mp3"); //Carga la música de fondo de las pantallas de inicio.
   musica.loop();     //La empieza a reproducir y la repite cada vez que termina.
@@ -121,6 +122,11 @@ PImage cargarFondo(String nombrearchivo) {
 amp() recibe un número de 0.0 (silencio) a 1.0 (volumen máximo). */
 void aplicarVolumen() {
   musica.amp(Volmusica / 10.0);
+  ambientemodo1.amp(Volmusica / 10.0);
+}
+
+void efecto(SoundFile sonido){ //Se llama esta funcion cada que se quiera usar algun efecto de sonido.
+  sonido.play(1.0, Volefectos / 10.0);  //Hace que suene el efecto respetando el volumen puesto en "Volefectos"
 }
 
 /* ======================================================================
@@ -141,6 +147,28 @@ void cambiarPantalla(int nuevapantalla) { //Esta funcion cambia la pantalla con 
             musica.loop(); //Volvemos al menu, asi que arranca otra vez a sonar la musica. 
         }
     }
+    if(nuevapantalla >= 20 && nuevapantalla <= 22){  //Si se encuentra en alguna de estas pantallas, suena la musica ambiente del modo 1.
+        if(!ambientemodo1.isPlaying()){
+            ambientemodo1.loop();
+            aplicarVolumen();
+        }
+    }else{
+        ambientemodo1.stop();   //Al salir de esas pantallas, se quita la musica. 
+    }
+    linea = 0;      //Estas son variables de dialogo y deben reiniciarse cada que se cambia de pantalla. (Modos de juego)
+    letra = 0;
+    lineaTerminada = false;
+    inicioPantalla = millis();   //Guarda cuando empezó esta pantalla(Lo usan algunas pantallas del modo 1)
+
+    if(nuevapantalla == 20){  //Al entrar a este modo, se reinician todas las variables relacionadas al modo. 
+    bienestar = 100;
+    racha = 0;
+    pizzaRecogida = false;
+    lataRecogida = false;
+    buzoRecogido = false;
+    bolsaRecogida = false;
+    botellaRecogida = false;
+}
 }
 
 void dibujartransicion(){  //Dibuja un rectangulo negro sobre toda la pantalla que se aclara poco a poco(Para la transicion entre pantallas)
