@@ -19,9 +19,20 @@
 
  PImage[] Barrabienestar = new PImage[11]; //cuando i = 0 --> Muestra la imagen de Bienestar con 10%, cuando i = 9, muestra la de 100%
 
-//---------------------------Sonidos---------------------------
-SoundFile ambientemodo1;   //Luvia, teclado, mouse clickeando y notificaciones de telefono como el sonido ambiente en que se desarrollaran las primeras escenas
+//============================MUSICA============================
+//----------------------------Musica de fondo----------------------------
+SoundFile ambientemodo1;   //Luvia, teclado, mouse clickeando y notificaciones de telefono como el sonido ambiente en que se desarrollaran las primeras escenas.
+SoundFile musicaMinijuegoBase;  //La musica del minijuego base(El de los mensajes)
+ 
+//----------------------------Efectos de sonido----------------------------
 SoundFile sonidoLetra;     //El sonidito como de "teclado" que acompañara al texto que se producira cuando los personajes hablen(Sirve para los 3 modos)
+SoundFile sonidoError;     //El sonidito que sonará cuando el jugador se equivoque de tecla en el minijuego base(error leve dependiendo de la tecla)
+SoundFile sonidoRayo;      //El sonidito que sonará cuando el rayo de la racha cambie.
+SoundFile sonidoGolpe;     //El sonidito que sonará cuando un mensaje negativo golpee a Leo(o cuando pierda vida por llevar varios errores leves)
+SoundFile sonidoPositivo;  //El sonidito que sonará cuando el jugador capture un mensaje positivo.
+SoundFile sonidoBloqueo;   //El sonidito que sonará cuando el jugador bloquee un mensaje negativo.
+SoundFile sonidoVictoria;  //El sonido que sonará si el jugador supera el minijuego base 1.
+SoundFile sonidoGameover;  //El sonido que sonará si el jugador pierde el minijuego base 1(Bienestar = 0 manda a la pantalla de Game over)
 
 //---------------------------Variables relacionadas al Dialogo(Sirven para los 3 modos)---------------------------
 int linea = 0;             //En que linea de la conversación vamos
@@ -36,7 +47,8 @@ float Leox = 960;      //El pecho de Leo en el minijuego Base(Hacia donde iran l
 float Leoy = 480;      //Esta justo en la mitad de la pantalla
 
 //---------------------------Estado del modo 1---------------------------
-int bienestar = 100;   //De 0 a 100 y de 10 en 10, es como la "vida" del jugador, si es igual a 0, significa "Game Over"
+int bienestar = 70;   //De 0 a 100 y de 10 en 10, es como la "vida" del jugador, si es igual a 0, significa "Game Over"
+//Bienestar arranca en 70 porque Leo desde un principio no esta bien, lleva 3 dias encerrado en su cuarto y eso es nocivo para cualquier persona.
 int racha = 0;         //Aciertos seguidos en el minijuego base se guardan en este contador.
 boolean pizzaRecogida = false, lataRecogida = false, buzoRecogido = false, bolsaRecogida = false, botellaRecogida = false;
 //En los booleanos de arriba: False --> Sigue la basura en el piso.  True --> Se recogió la basura.
@@ -92,7 +104,15 @@ void cargarModo1() {
 
   //Sonidos:
   ambientemodo1 = new SoundFile(this, "audio/musica_ambiente_modo_1.mp3");
+  musicaMinijuegoBase = new SoundFile(this, "audio/musica_minijuegobase.mp3");
   sonidoLetra = new SoundFile(this, "audio/tecla.wav");
+  sonidoError = new SoundFile(this, "audio/sfx_error.wav");
+  sonidoRayo = new SoundFile(this, "audio/sfx_rayo.wav");
+  sonidoGolpe = new SoundFile(this, "audio/sfx_golpe.wav");
+  sonidoPositivo = new SoundFile(this, "audio/sfx_positivo.wav");
+  sonidoBloqueo = new SoundFile(this, "audio/sfx_bloqueo.wav");
+  sonidoVictoria = new SoundFile(this, "audio/sfx_victoria.wav");
+  sonidoGameover = new SoundFile(this, "audio/sfx_gameover.wav");
 }
 
 //FUNCIONES AUXILIARES PARA modo1():
@@ -219,7 +239,7 @@ void dibujarBarra() {
   }
 }
 
-//Racha (arriba a la izquierda). Solo en el tutorial y el minijuego.
+//Esta funcion dibuja el "rayito" de la racha del minijuego base, que cambia entre mayor sea la racha.
 void dibujarRacha() {
   if(racha <= 7){
     image(rayo1, 50*escalaX, 30*escalaY);
@@ -256,6 +276,15 @@ void modo1() {
 
       ayudaEnter();        //Solo en esta escena, por ser la primera del modo.
       dibujarBarra();
+    }else{
+      if(pantalla == 22){
+        tarjetaDia("MIENTRAS TANTO...", "En la partida, el chat no para de escribir y Leo tiene que decidir que responder...", 23); //Aprovecharemos esta funcion para mostrar la transicion hacia el minijuego base 1. 
+      }else{
+        if(pantalla == 23){
+          //Se muestra el tutorial del minijuego base1. 
+          image(tutorialbase1, 0, 0);
+        }
+      }
     }
   }
 }
