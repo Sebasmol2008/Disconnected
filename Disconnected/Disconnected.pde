@@ -87,6 +87,9 @@ void setup() {
   fondoOpciones = cargarFondo("fondos/fondoopciones.jpg");
   fondoCreditos = cargarFondo("fondos/fondocreditos.jpg");
   fondoModos    = cargarFondo("fondos/fondomodos.jpg");
+  for(int i = 0; i < 3; i++){
+  fondoModoEncima[i] = cargarFondo("fondos/fondomodos" + (i + 1) + ".jpg");   //i = 0 carga fondomodos1, i = 1 fondomodos2, i = 2 fondomodos3 --> Es una manera mas facil y dinamica de cargar los fondos al momento de elegir la historia.
+  }
 
   //Fuentes: creamos las fuentes; el tamaño se multiplica por escalaY.
   titulo56 = createFont("fuentes/PressStart2P-Regular.ttf", 56*escalaY);
@@ -161,7 +164,7 @@ void cambiarPantalla(int nuevapantalla) { //Esta funcion cambia la pantalla con 
     inicioPantalla = millis();   //Guarda cuando empezó esta pantalla(Lo usan algunas pantallas del modo 1)
 
     if(nuevapantalla == 20){  //Al entrar a este modo, se reinician todas las variables relacionadas al modo. 
-    bienestar = 100;
+    bienestar = 70;
     racha = 0;
     pizzaRecogida = false;
     lataRecogida = false;
