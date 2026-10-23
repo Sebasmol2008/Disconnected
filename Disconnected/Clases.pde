@@ -333,3 +333,4 @@ class Juego {
         bienestar = constrain(bienestar, 0, 100);  //La funcion constrain() nativa de processing hace que bienestar no se pase de 100 y no sea menor que 0.
     }
 }
+

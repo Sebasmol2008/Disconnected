@@ -33,6 +33,7 @@ int flechaEncima = 0;      //Flecha sobre la que esta el mouse al subir o bajar 
 
 ////---------------Pantalla de Elegir historia---------------
 int modoEncima = -1;  //Modo de juego seleccionado bajo el mouse(0, 1, 2) o -1 = ninguna
+PImage[] fondoModoEncima = new PImage[3];   //Las 3 variantes iluminadas: 0 = Cuatro Paredes, 1 = En Vivo, 2 = Rastro Viral.
 boolean volverEncima = false; //boton VOLVER bajo el mouse(se usa en varias pantallas)
 
 //==================================================================
@@ -217,64 +218,27 @@ void pantallaCreditos(){ //La que aparece cuando pantalla = 3, la pantalla de cr
   botonVolver(60, 1000);   // para regresar al menú
 }
 
-// Esta funcion es MUY necesaria para hacer mas optima la pantalla de modos, dibuja UNA ventana de elegir historia (se llama 3 veces, una por historia).
-void ventanaModo(int numero, float x1, float y1, float x2, float y2, color borde,
-                 String linea1, String linea2, String linea3) { //Hay 3 posibilidades:
-  if (modoEncima == numero) {
-    // Posibilidad 1: Esta ventana está elegida: luz blanca muy suave encima + borde del color de la historia
-    noStroke();
-    fill(255, 255, 255, 25);
-    rectE(x1, y1, x2 - x1, y2 - y1);   // ancho = x2 - x1, alto = y2 - y1
-    noFill();                          // el siguiente rectángulo solo tiene borde
-    stroke(borde);
-    strokeWeight(5 * escalaY);    
-    rectE(x1, y1, x2 - x1, y2 - y1);   //x2 - x1 es el ancho del rectangulo, y y2 - y1 es el largo.
-    noStroke();
-  } else {
-    if (modoEncima != -1) {
-      // Posibilidad 2: Hay OTRA ventana elegida: esta se oscurece.
-      noStroke();
-      fill(0, 130);  //Oscurece esta ventana para que la otra resalte
-      rectE(x1, y1, x2 - x1, y2 - y1);
-    }
-  }
-  // Posibilidad 3: No hay ninguna elegida (modoEncima = -1): no entra a ningún if, la ventana queda normal.
-
-  float centroX = (x1 + x2) / 2;  //Centra el texto justo en la mitad. 
-  textAlign(CENTER, CENTER);
-
-  if (modoEncima == numero) {
-    fill(255);               // blanco si está elegida
-  } else {
-    fill(165, 180, 200);     // gris si no
-  }
-  escribir(linea1, centroX, 580, texto36);
-  escribir(linea2, centroX, 620, texto36);
-  escribir(linea3, centroX, 660, texto36);
-}
-
 void pantallaModos() {   //La que aparece cuando pantalla = 4, la pantalla de los modos(Elegir Historia)
-  image(fondoModos, 0, 0);
-  modoEncima = -1;
-  if (mouseEncima(365, 184, 714, 691)) {
+  //Primero se averigua DÓNDE está el mouse (antes de dibujar, para elegir el fondo correcto)
+  modoEncima = -1;                         //-1 = ninguna franja(Se pone el fondo sin nada seleccionado)
+  if (mouseEncima(0, 0, 1920, 400)) {     //Franja de arriba: CUATRO PAREDES.
     modoEncima = 0;
   }
-  if (mouseEncima(784, 184, 1137, 691)) {
+  if (mouseEncima(0, 400, 1920, 710)) {    //Franja del medio: EN VIVO.
     modoEncima = 1;
   }
-  if (mouseEncima(1203, 184, 1562, 691)) {
+  if (mouseEncima(0, 710, 1920, 1080) && !mouseEncima(0, 950, 430, 1080)) {   //Franja de abajo: RASTRO VIRAL, se excluye la esquina del botón "VOLVER"
     modoEncima = 2;
   }
 
-  // Cada ventana: su número, sus coordenadas, el color de su borde y sus 3 líneas de descripción.
-  ventanaModo(0, 365, 184, 714, 461, color(90, 220, 140),
-              "Leo lleva días encerrado.", "El sábado cumple Sofía.", "¿Saldrá de su cuarto?");
-  ventanaModo(1, 784, 184, 1137, 461, color(255, 80, 170),
-              "Un troll ataca su stream.", "Más odio, más audiencia.", "¿Qué vale más para ti?");
-  ventanaModo(2, 1203, 184, 1562, 461, color(240, 70, 70),
-              "Una captura falsa viral.", "Sofía necesita ayuda.", "Sigue el rastro digital.");
+  //Luego se dibuja: la normal si no hay ninguna, o la variante de esa franja.
+  if (modoEncima == -1) {
+    image(fondoModos, 0, 0);
+  } else {
+    image(fondoModoEncima[modoEncima], 0, 0);   //modoEncima vale 0, 1 o 2: justo la casilla del arreglo.
+  }
 
-  botonVolver(60, 1000);
+  botonVolver(60, 1000);   //Va en la esquina oscura de abajo a la izquierda.
 }
 
 
