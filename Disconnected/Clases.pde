@@ -98,7 +98,7 @@ void dibujar(boolean brillante){
 }
 
 //=============================== AVATAR ===============================
-class Avatar{
+class Avatar{    //Por ahora una clase algo "simbolica" y sujeta a cambios, ya que realmente tiene pocas propiedades y sus atributos son especificamente para el minijuego base.
     float x, y;        //Los puntos x y y donde se encuentra el personaje, son el punto hacia donde llegan los mensajes.
     int inicioGolpe;   //Guarda el valor de millis() en el instante en que el personaje recibe un golpe.
    //(Importante para hacer una animación de temblor y destello rojo cuando el personaje reciba daño)
@@ -145,7 +145,9 @@ class Juego {
     int ultimoMensaje;       //millis() del último globo creado (para que salgan con un tiempo de distancia).
     int racha;               //Aciertos seguidos.
     int errores;             //Errores leves acumulados (2 acumulados = -10 de bienestar).
-    float radioAnillo = 450; //Solo los globos dentro de este círculo invisible responden a las teclas(Se iluminan y se pueden reaccionar frente a las teclas)
+    float radioAnillo = 850; //Solo los globos dentro de este círculo invisible responden a las teclas(Se iluminan y se pueden reaccionar frente a las teclas)
+    float latido = 1;            //Tamaño actual del aviso "PRESIONA R" (1 = tamaño normal). Crece y se encoge para que parezca que "late"--> Esto es para que se vea mas estetico.
+    float cambioLatido = 0.006;  //Cuánto cambia el tamaño en cada frame. Si es positivo crece, si es negativo se encoge(El hecho de ser negativo o positivo se determinara en la funcion)
 
     //---------- Constructor ----------
     Juego(Avatar a, String[] neg, String[] pos, String[] neu) {  //Solo se ponen otros nombres para no repetir los mismos de los atributos pero se refieren todos a lo mismo.
@@ -226,13 +228,13 @@ class Juego {
     //2 --> Mueve, revisa y dibuja los globos encendidos.
     void actualizar(){
         //Esta parte del metodo es encargado del apartado 1. 
-        int espera = 1850 - fase() * 350;
-        //El tiempo de espera entre globos baja con la fase: fase 1 --> 1500 ms. fase 2 --> 1150 ms. fase 3 --> 800 ms.
+        int espera = 1750 - fase() * 350;
+        //El tiempo de espera entre globos baja con la fase: fase 1 --> 1400 ms. fase 2 --> 1050 ms. fase 3 --> 700 ms.
         if(millis() - ultimoMensaje > espera){  //Evalua si ya pasó el tiempo de espera --> Se enciende otro mensaje. 
             for(int i = 0; i < 10; i = i + 1){  
                 if(!mensajes[i].activo){  //Toma a la primera casilla de globo de mensaje que este "apagada"
-                mensajes[i].iniciar(2 + fase() * 1, negativos, positivos, neutros);
-                //La velocidad aumenta segun la fase --> fase 1 = 3. fase 2 --> 4. fase 3 --> 5.
+                mensajes[i].iniciar(2 + fase() * 1.5, negativos, positivos, neutros);
+                //La velocidad aumenta segun la fase --> fase 1 = 3,5. fase 2 --> 5. fase 3 --> 6,5.
                 ultimoMensaje = millis();    //Se actualiza el valor de "ultimoMensaje" cada que se inicia uno.
                 break;   //Ya lanzó un mensaje, asi que se sale del for para no lanzar varios a la vez. 
                 }
@@ -264,6 +266,20 @@ class Juego {
             }
         }
         return cuenta;
+    }
+
+    //Este metodo dibuja el aviso de "PRESIONA R" con un efecto en el que parece que esta "latiendo" en la parte de arriba, solo si hay 3 o mas negativos en pantalla.
+    void dibujarAvisoR(){
+        if(contarNegativos() >= 3){
+            latido = latido + cambioLatido;    //Cada frame crece(o se encoge un poquito)
+            if(latido > 1.06 || latido < 0.94){  //Evalua si llegó al tamaño maximo(106%) o si llegó al tamaño minimo(94%)
+                cambioLatido = -cambioLatido;    //Cambia de dirección, si crecia, ahora se encoge, y al reves pasa igual.
+            }
+            imageMode(CENTER);  //Para que (x, y) sea el centro de la imagen y crezca hacia todos los lados por igual.
+            image(avisoR, 960*escalaX, 200*escalaY, avisoR.width*latido, avisoR.height*latido);  //avisoR.width y avisoR.height arrojan el ancho y alto de la imagen guardada en la variable avisoR.
+            //Con 5 parametros, image() dibuja la imagen con ese ancho y alto, por eso, el ancho y alto se multiplica por el "latido" en ese frame.
+            imageMode(CORNER);  //Se vuelve a poner la configuración predeterminada de processing para no dañar la configuracion de las futuras imagenes.
+        }
     }
 
     //Este metodo se llama cuando el jugador presiona la tecla equivocada sobre el globo elegido (error leve):

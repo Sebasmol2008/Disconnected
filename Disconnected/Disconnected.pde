@@ -44,7 +44,7 @@ boolean sobreBoton = false;     //true si en esta foto el mouse está sobre alg�
 
 //--------------------------Imágenes--------------------------
 //A continuación, las variables que guardarán imágenes:
-PImage fondoLogo, fondoTitulo, fondoMenu, fondoOpciones, fondoCreditos, fondoModos;
+PImage fondoLogo, fondoTitulo, fondoMenu, fondoOpciones, fondoCreditos, fondoModos, fondoGameover;
 
 //--------------------------Fuentes (tipos de letra)--------------------------
 /* Usaremos mucho esto, ya que en lo máximo posible generaremos
@@ -87,6 +87,7 @@ void setup() {
   fondoOpciones = cargarFondo("fondos/fondoopciones.jpg");
   fondoCreditos = cargarFondo("fondos/fondocreditos.jpg");
   fondoModos    = cargarFondo("fondos/fondomodos.jpg");
+  fondoGameover = cargarFondo("fondos/gameover.jpg");
   for(int i = 0; i < 3; i++){
   fondoModoEncima[i] = cargarFondo("fondos/fondomodos" + (i + 1) + ".jpg");   //i = 0 carga fondomodos1, i = 1 fondomodos2, i = 2 fondomodos3 --> Es una manera mas facil y dinamica de cargar los fondos al momento de elegir la historia.
   }
@@ -126,6 +127,7 @@ amp() recibe un número de 0.0 (silencio) a 1.0 (volumen máximo). */
 void aplicarVolumen() {
   musica.amp(Volmusica / 10.0);
   ambientemodo1.amp(Volmusica / 10.0);
+  musicaMinijuegoBase.amp(Volmusica / 10.0);
 }
 
 void efecto(SoundFile sonido){ //Se llama esta funcion cada que se quiera usar algun efecto de sonido.
@@ -150,7 +152,7 @@ void cambiarPantalla(int nuevapantalla) { //Esta funcion cambia la pantalla con 
             musica.loop(); //Volvemos al menu, asi que arranca otra vez a sonar la musica. 
         }
     }
-    if(nuevapantalla >= 20 && nuevapantalla <= 22){  //Si se encuentra en alguna de estas pantallas, suena la musica ambiente del modo 1.
+    if(nuevapantalla >= 20 && nuevapantalla <= 24){  //Si se encuentra en alguna de estas pantallas, suena la musica ambiente del modo 1.
         if(!ambientemodo1.isPlaying()){
             ambientemodo1.loop();
             aplicarVolumen();
@@ -165,13 +167,21 @@ void cambiarPantalla(int nuevapantalla) { //Esta funcion cambia la pantalla con 
 
     if(nuevapantalla == 20){  //Al entrar a este modo, se reinician todas las variables relacionadas al modo. 
     bienestar = 70;
-    racha = 0;
     pizzaRecogida = false;
     lataRecogida = false;
     buzoRecogido = false;
     bolsaRecogida = false;
     botellaRecogida = false;
-}
+    }
+    if(nuevapantalla == 25){   //En la pantalla del minijuego suena su propia música.
+        if(!musicaMinijuegoBase.isPlaying()){
+            musicaMinijuegoBase.loop();
+            aplicarVolumen();
+        }
+    }else{
+        musicaMinijuegoBase.stop();   //En cualquier otra pantalla (Como la del Game over) se apaga.
+    }
+
 }
 
 void dibujartransicion(){  //Dibuja un rectangulo negro sobre toda la pantalla que se aclara poco a poco(Para la transicion entre pantallas)
@@ -255,6 +265,10 @@ void draw(){
                             }else{
                                 if(pantalla >= 60 && pantalla < 80){
                                     modo3();
+                                }else{
+                                    if(pantalla == 90){
+                                        pantallaGameover();
+                                    }
                                 }
                             }
                         }
@@ -268,12 +282,17 @@ void draw(){
         dibujarCoordenadas();
     }
 
+
+    if(pantalla>= 20 && pantalla <= 25){
+        noCursor();   //En estas pantallas del modo de juego 1 no se usa el mouse, asi que se esconde.
     //Cursor: si en esta foto alguna pantalla encontro el mouse sobre un boton (mouseEncima() puso sobreBoton = true),
     //se muestra la manito; si no, la flecha normal.
-    if(sobreBoton){
-        cursor(HAND);    //manito
     }else{
-        cursor(ARROW);   //flecha normal
+        if(sobreBoton){
+            cursor(HAND);    //manito
+        }else{
+            cursor(ARROW);   //flecha normal
+        }
     }
 }
 

@@ -23,24 +23,47 @@
          if(pantalla == 2 ||  pantalla == 3 || pantalla == 4){
             cambiarPantalla(1); //Si presionamos ESC en alguna de las pantallas mencionadas, llevaran a la pantalla 1. 
          }else{
-            if(pantalla >= 20){
-               cambiarPantalla(4);      //Si presionamos ESC dentro de un modo, llevara a la pantalla de "Elegir historia"(Esta medida es temporal hasta ahora)
+            if(pantalla == 24){
+               cambiarPantalla(23);
+            }else{
+               if(pantalla >= 20){
+                  cambiarPantalla(4);      //Si presionamos ESC dentro de un modo, llevara a la pantalla de "Elegir historia"(Esta medida es temporal hasta ahora)
+               }
             }
-         }
+         }   
       }
       return;  //El "return" aqui es como un "Finaliza la funcion acá", en este caso, se usa ahi porque ya no hay mas nada que comparar con el ESC. 
    }
-   
+
    if(key == TAB){
       vercoordenadas = !vercoordenadas;  //Si era false pasa a true y viceversa.
       return;
    }
+
    if(pantalla == 0){  //Cualquier tecla en la intro hace avanzar.
       avanzarIntro(); 
    }
+
+   if(pantalla == 25){    //En el minijuego base 1, la tecla presionada se le pasa al objeto juego1.
+   juego1.tecla(key);    //tecla() revisa si fue B, C o R y hace lo que corresponde.
+   }
+
    if(key == ENTER){
       if(pantalla == 21){
          avanzarDialogo();
+      }else{
+         if(pantalla == 23){
+            cambiarPantalla(24);    //Pasa de la pantalla de tutorial 1 a tutorial 2.
+         }else{
+            if(pantalla == 24){
+               juego1.empezar();    //Inicia todo lo relacionado al juego
+               cambiarPantalla(25); //Empieza el minijuego base
+            }else{
+               if(pantalla == 90){   //Pantalla 90 = Pantalla del game over
+                  reintentar();      //Volver a intentarlo. 
+               }
+            }
+         }
       }
    }
 }
@@ -69,14 +92,24 @@ void mouseReleased(){  //Esta funcion se llama exactamente en el momento en el q
                      }
                   }
                }else{
-                  if(pantalla >= 20 && volverEncima) {
-                     cambiarPantalla(4);   //Si estas en un modo de juego y presiones un "volver" te enviara a la pantalla de seleccion de modos(TEMPORAL POR AHORA)
+                  if(pantalla == 90){        
+                     if(gameoverEncima == 0){
+                        reintentar();   
+                     }else{
+                        if(gameoverEncima == 1){
+                           cambiarPantalla(4);   //Vas nuevamente a la pantalla de Elegir historia.
+                        }
+                     }
+                  }else{
+                     if(pantalla >= 20 && volverEncima){
+                        cambiarPantalla(4);
+                     }
                   }
                }
             }
-         }
+         }   
       }
-   }   
+   }
 }
 
 void avanzarIntro() {  //En la intro: Si el logo no ha terminado, manda directo al titulo, y si esta el titulo, pasa directamente al menu(Al clickear o presionar teclas)
