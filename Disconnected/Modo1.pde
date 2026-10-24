@@ -9,13 +9,14 @@
  //=============================VARIABLES DEL MODO 1=============================
  //---------------------------Imagenes---------------------------
  PImage cuarto1, cuarto2, cuarto3;      //Fondos del cuarto representando sus respectivas fases. 
- PImage minijuegobase1, tutorialbase1; //Fondos del minijuego base y del tutorial del minijuego base.
+ PImage minijuegobase1, tutorialbase1, tutorialbase2; //Fondos del minijuego base y del tutorial del minijuego base.
  PImage cajaDialogo;                   //Caja de dialogo donde se verá el dialogo de los personajes
 
  PImage pizza, lata, buzo, bolsa, botella;   //Los 5 objetos de basura que iran en el minijuego 2. 
 
  PImage rayo1, rayo2, rayo3;             //Diferentes iconos de rayos para la "racha"
  PImage globo, globobrillante;           //Globo de los mensajes: Normal(No esta seleccionado) e iluminado(Esta seleccionado)
+ PImage avisoR;                          //El aviso de "Presiona R" que aparece cuando hay 3 mensajes negativos o mas en la pantalla
 
  PImage[] Barrabienestar = new PImage[11]; //cuando i = 0 --> Muestra la imagen de Bienestar con 10%, cuando i = 9, muestra la de 100%
 
@@ -42,16 +43,27 @@ boolean lineaTerminada = false; //Indica cuando puede aparecer la señal de "Pre
 //---------------------------Tiempo---------------------------
 int inicioPantalla = 0;     //Indica el momento en que se entra a la pantalla con millis().
 
-//---------------------------Minijuego Base ---------------------------
-float Leox = 960;      //El pecho de Leo en el minijuego Base(Hacia donde iran los mensajes)
-float Leoy = 480;      //Esta justo en la mitad de la pantalla
+//---------------------------Minijuego Base 1: Frases ---------------------------
+//Los 3 arreglos(listas) de frases del minijuego. El Juego las recibe en su constructor y se las pasa a cada globo.
+//Las frases son cortas para que quepan dentro del globo.
+String[] negativosM1 = {"Eres un desastre", "Desinstala, no sirves", "Te voy a reportar", "Por tu culpa perdemos",
+                        "Juegas fatal", "Inútil", "Sal del juego ya"};                       //Insultos del equipo de Leo.
+String[] positivosM1 = {"Te extraño, Leo", "Eres mi mejor amigo", "Te quiero mucho, hijo",
+                        "Estoy orgullosa de ti", "Cuenta conmigo, Leo", "Aquí estoy para ti"};  //Mensajes de su mamá y de Sofía.
+String[] neutrosM1   = {"Skins al 50%", "Nueva temporada", "Evento diario activo", "Mantenimiento a las 3 a.m.",
+                        "Recompensa diaria", "Pase de batalla nuevo"};                       //Spam del juego.
+
+//---------------------------Minijuego base 1: objetos---------------------------
+Avatar leo;        //El personaje del minijuego: el punto hacia donde viajan los mensajes.
+Juego juego1;      //El minijuego base del Modo 1.
 
 //---------------------------Estado del modo 1---------------------------
 int bienestar = 70;   //De 0 a 100 y de 10 en 10, es como la "vida" del jugador, si es igual a 0, significa "Game Over"
 //Bienestar arranca en 70 porque Leo desde un principio no esta bien, lleva 3 dias encerrado en su cuarto y eso es nocivo para cualquier persona.
-int racha = 0;         //Aciertos seguidos en el minijuego base se guardan en este contador.
 boolean pizzaRecogida = false, lataRecogida = false, buzoRecogido = false, bolsaRecogida = false, botellaRecogida = false;
 //En los booleanos de arriba: False --> Sigue la basura en el piso.  True --> Se recogió la basura.
+
+
 
 //===========================CARGA DE TODO EL MODO 1===========================
 //Esta funcion se llamará una vez desde Setup, y se hace con el fin de tener las cosas separadas y no mezclar los modos de juego.
@@ -61,6 +73,7 @@ void cargarModo1() {
   cuarto2 = cargarFondo("fondos/cuarto2.jpg");
   cuarto3 = cargarFondo("fondos/cuarto3.jpg");
   tutorialbase1  = cargarFondo("fondos/tutorialminijuegobase1.jpg");
+  tutorialbase2 = cargarFondo("fondos/tutorialminijuegobase2.jpg");
   minijuegobase1 = cargarFondo("fondos/minijuegobase1.jpg");
 
   //Caja de dialogo(Es una imagen y se dibujará encima del fondo):
@@ -90,10 +103,19 @@ void cargarModo1() {
   rayo3.resize(int(rayo3.width * 0.22 * escalaX), 0);   
 
   //Globos de los mensajes del minijuego base: Los 2 se cargan y se achican porque son muy grandes.
-  globo       = loadImage("objetos/globo.png");
+  globo = loadImage("objetos/globo.png");
   globo.resize(int(420*escalaX), 0);
   globobrillante = loadImage("objetos/globo_brillo.png");
   globobrillante.resize(int(420*escalaX), 0);
+
+  //El png que aparecera cuando se pueda presionar la R:
+  avisoR = loadImage("objetos/avisoR.png");
+  avisoR.resize(int(800*escalaX), 0);  //La imagen original es muy grande, asi que se reduce a que ocupe 800 pixeles de ancho.
+
+  //Objetos del minijuego base 1: se crean UNA sola vez, al jugar o reintentar,
+  //juego1.empezar() los reinicia, así que no hace falta volver a crearlos.
+  leo = new Avatar(960, 480);                                     //Primero el avatar (el pecho de Leo, en el centro) --> Hacia donde iran los mensajes.
+  juego1 = new Juego(leo, negativosM1, positivosM1, neutrosM1);   //Después el juego, que necesita al avatar y las frases.
 
   //Barras del bienestar: Como son 10 imagenes, para ahorrar lineas y agilizar el proceso, lo haremos con un for directamente.
   //Aprovecharemos que tienen nombres MUY similares sus archivos para hacer un "atajo" con un ciclo for.
@@ -241,10 +263,10 @@ void dibujarBarra() {
 
 //Esta funcion dibuja el "rayito" de la racha del minijuego base, que cambia entre mayor sea la racha.
 void dibujarRacha() {
-  if(racha <= 7){
+  if(juego1.racha <= 7){
     image(rayo1, 50*escalaX, 30*escalaY);
   }else{
-    if(racha <= 15){
+    if(juego1.racha <= 15){
       image(rayo2, 50*escalaX, 30*escalaY);
     }else{
       image(rayo3, 50*escalaX, 30*escalaY);
@@ -252,7 +274,35 @@ void dibujarRacha() {
   }
   textAlign(LEFT, CENTER);
   fill(255);
-  escribir("x" + racha, 200, 100, titulo40);
+  escribir("x" + juego1.racha, 200, 100, titulo40);
+}
+
+//Esta funcion dibuja y controla el minijuego base 1(Pantalla 25). Se ejecuta en cada frame.
+void minijuegoBase1(){
+  leo.danoRecibido(minijuegobase1);   //Dibuja basicamente el fondo, ya sea normal, o con el efecto de temblor y destello rojo si a leo lo acaban de golpear.
+  juego1.dibujarAvisoR();             //Este metodo dibuja el aviso "PRESIONA R"(Solo aparece con 3 negativos o mas)
+  juego1.actualizar();                //Este metodo lanza globos nuevos, los mueve, revisa choques y los dibuja.
+  dibujarBarra();                     //Este metodo dibuja a la barra de bienestar arriba a la derecha
+  dibujarRacha();                     //Este metodo dibuja la racha arriba a la izquierda.
+  //Estos mensajes se dibujan en "orden", siguiendo un dibujo por capas donde la barra del bienestar y la interfaz de la racha se dibujan por encima de todo.
+
+  //El tiempo que le queda al jugador para que se acabe el minijuego se dibujara arriba en el centro.
+  int restante = 60 - juego1.tiempo() / 1000;  //juego1.tiempo / 1000 cambia el valor de tiempo de millis() a segundos.
+  textAlign(CENTER, CENTER);                   //Se escribirá tomando a (x, y) como el centro.
+  fill(255);                                   //Color blanco. 
+  escribir("" + restante, 960, 80, titulo48);  //"" + numero lo vuelve texto.
+
+  //Ahora se evaluan las 2 posibilidades para que el juego se acabe:
+  if(bienestar <= 0){   //Si se queda sin bienestar, directamente pierde y se va a la pantalla de Game over.
+    efecto(sonidoGameover);
+    cambiarPantalla(90);      
+  }else{
+    if(juego1.terminado()){   //Si logra terminar el juego (tiempo > 60s) entonces gana el juego y pasa a la siguiente pantalla.
+      efecto(sonidoVictoria);
+      cambiarPantalla(4);
+    }
+  }
+  
 }
 //===========================modo1(): EL "DIRECTOR" DEL MODO===========================
 //draw() llama a modo1() cuando pantalla está entre 20 y 39. Aquí se elige qué pantalla dibujar.
@@ -278,11 +328,19 @@ void modo1() {
       dibujarBarra();
     }else{
       if(pantalla == 22){
-        tarjetaDia("MIENTRAS TANTO...", "En la partida, el chat no para de escribir y Leo tiene que decidir que responder...", 23); //Aprovecharemos esta funcion para mostrar la transicion hacia el minijuego base 1. 
+        tarjetaDia("MIENTRAS TANTO...", "En la partida, el chat no para de escribir y Leo tiene que decidir qué responder...", 23); //Aprovecharemos esta funcion para mostrar la transicion hacia el minijuego base 1. 
       }else{
         if(pantalla == 23){
-          //Se muestra el tutorial del minijuego base1. 
-          image(tutorialbase1, 0, 0);
+          image(tutorialbase1, 0, 0);  //Pantalla de tutorial 1 --> Se explican los controles. ENTER pasa a la pantalla de tutorial 2. 
+        }else{
+          if(pantalla == 24){
+            image(tutorialbase2, 0, 0); //Pantalla de tutorial 2 --> Se explican las dinamicas del juego relacionadas al bienestar
+            //ENTER pasa al minijuego, ESC vuelve a la pantalla de tutorial 1
+          }else{
+            if(pantalla == 25){
+              minijuegoBase1();    //Se llama a la funcion del minijuego base(Los mensajes)
+            }
+          }
         }
       }
     }

@@ -31,10 +31,13 @@ int flechaEncima = 0;      //Flecha sobre la que esta el mouse al subir o bajar 
 //---------------Pantalla de créditos---------------
 // Por ahora no hay variables: los textos de los créditos se agregan cuando el juego esté terminado.
 
-////---------------Pantalla de Elegir historia---------------
+//---------------Pantalla de Elegir historia---------------
 int modoEncima = -1;  //Modo de juego seleccionado bajo el mouse(0, 1, 2) o -1 = ninguna
 PImage[] fondoModoEncima = new PImage[3];   //Las 3 variantes iluminadas: 0 = Cuatro Paredes, 1 = En Vivo, 2 = Rastro Viral.
 boolean volverEncima = false; //boton VOLVER bajo el mouse(se usa en varias pantallas)
+
+//---------------Pantalla de Game over---------------
+int gameoverEncima = -1;   //Boton bajo el mouse en la pantalla de Game over. 0 = Reintentar. 1 = Elegir Historia. -1 = Ninguno.
 
 //==================================================================
 // PANTALLAS
@@ -239,6 +242,41 @@ void pantallaModos() {   //La que aparece cuando pantalla = 4, la pantalla de lo
   }
 
   botonVolver(60, 1000);   //Va en la esquina oscura de abajo a la izquierda.
+}
+
+void pantallaGameover(){  //La que aparece cuando pantalla = 90, la pantalla de game over(cuando el bienestar llega a 0)
+  image(fondoGameover, 0, 0);  
+  gameoverEncima = -1;   //Se supone que el mouse esta encima de ningun boton primero.
+  textAlign(CENTER, CENTER);  
+  //Se dibuja el mensaje de motivo de perdida en el centro, junto con una "reflexion"
+  fill(220, 230, 240);  //Color blanco azulado
+  escribir("Tu bienestar llegó a 0.", 960, 420, texto44);
+  fill(127, 231, 255);   //Color cian. 
+  escribir("Desconectarse a tiempo también es ganar.", 960, 480, texto40);
+
+  //Botones:
+  if(mouseEncima(660, 580, 1260, 660)){
+    gameoverEncima = 0;  //Encima del boton de "Reintentar"
+    fill(127, 231, 255);  //Se ilumina de color cian si el mouse esta encima. 
+  }else{
+    fill(200, 210, 225);  //Se dibuja gris claro si no.
+  }
+  escribir("REINTENTAR", 960, 620, titulo40);  
+  
+  if(mouseEncima(480, 680, 1440 , 760)){
+    gameoverEncima = 1;  //Encima del boton de "Elegir historia" --> Vuelve a la pantalla 4.
+    fill(127, 231, 255);  //Se ilumina de color cian si el mouse esta encima. 
+  }else{
+    fill(200, 210, 225);  //Se dibuja gris claro si no.
+  }
+  escribir("VOLVER A ELEGIR HISTORIA", 960, 720, titulo40); 
+}
+
+//Esta funcion es de "auxilio" para cuando alguien quiera reintentar el minijuego base nuevamente:
+void reintentar(){  //Por ahora esta en una fase temporal, ya que inicializa las variables del modo 1 por ahora. 
+  bienestar = 70;   //El bienestar con el que arranca el modo 1.
+  juego1.empezar();
+  cambiarPantalla(25);  
 }
 
 
